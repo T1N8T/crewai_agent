@@ -1,0 +1,44 @@
+{
+  "eval_set_id": "document_generator_manual",
+  "eval_cases": [
+    {
+      "eval_id": "ai_education_basic",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [
+              { "text": "Genera un informe académico sobre Inteligencia Artificial en Educación." }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "eval_id": "multiagent_systems_technical",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [
+              { "text": "Genera un informe técnico sobre sistemas multiagente en gestión de emergencias." }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "eval_id": "generic_prompt_still_structured",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [
+              { "text": "Haz un informe." }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

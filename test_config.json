@@ -1,26 +1,46 @@
 {
   "criteria": {
-    "tool_trajectory_avg_score": 0.8,
     "rubric_based_final_response_quality_v1": {
-      "threshold": 0.5,
+      "threshold": 0.8,
       "judge_model_options": {
         "judge_model": "openai/gpt-oss-120b",
-        "num_samples": 3
+        "num_samples": 2
       },
       "rubrics": [
         {
-          "rubric_id": "cumplimiento_instrucciones_y_formato",
+          "rubric_id": "secciones_informe",
           "rubric_content": {
-            "text_property": "Evalúa si la respuesta final cumple estrictamente con el formato solicitado: incluye la categoría elegida (museo, outdoor u ocio), un breve resumen del tiempo, exactamente 2 planes de la lista proporcionada por la herramienta, y el coste total en euros. La respuesta debe estar íntegramente en español."
+            "text_property": "El JSON debe incluir las secciones 'Introducción' y 'Conclusiones' dentro de la lista 'sections'."
           },
-          "description": "Formato, idioma y completitud de la respuesta."
+          "description": "Valida estructura editorial en el JSON."
         },
         {
-          "rubric_id": "logica_y_consistencia_datos",
+          "rubric_id": "num_references",
           "rubric_content": {
-            "text_property": "Evalúa la consistencia lógica: 1) La categoría elegida debe ser coherente con el tiempo (e.g., si llueve, se prefiere 'museo')."
+            "text_property": "El campo 'num_references' del JSON debe ser un número igual o superior a 3."
           },
-          "description": "Coherencia con el tiempo"
+          "description": "Valida el campo num_references."
+        },
+        {
+          "rubric_id": "num_sections",
+          "rubric_content": {
+            "text_property": "El campo 'num_sections' del JSON o la longitud de la lista 'sections' debe ser igual o superior a 4."
+          },
+          "description": "Valida el número de secciones en el JSON."
+        },
+        {
+          "rubric_id": "word_count",
+          "rubric_content": {
+            "text_property": "Los campos 'word_count' deben tener un valor igual o superior a 150."
+          },
+          "description": "Valida los campos de word_count."
+        },
+        {
+          "rubric_id": "total_word_count",
+          "rubric_content": {
+            "text_property": "el numero total de palabras en el campo 'total_words' debe ser igual o superior a 450"
+          },
+          "description": "Valida el numero total de palabras."
         }
       ]
     }
