@@ -1,0 +1,42 @@
+# =========================
+# 1. Variables de entorno y Secretos (¡CRÍTICO!)
+# =========================
+# Aquí guardaréis vuestras API Keys (OpenAI, Gemini, etc.). ¡Nunca lo subas!
+.env
+
+# =========================
+# 2. Archivos del Sistema Operativo
+# =========================
+# Veo que usas Mac por la captura. Esto evita subir la basura del Finder.
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# =========================
+# 3. Caché de Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# =========================
+# 4. Entornos Virtuales
+# =========================
+# Si creáis un entorno virtual para instalar google-adk o crewai, ignoradlo.
+venv/
+env/
+.venv/
+
+# =========================
+# 5. Archivos Generados por el Agente (Outputs)
+# =========================
+# Según la práctica, el agente generará PDFs y JSONs finales[cite: 507, 508].
+# Si los guardáis en una carpeta "output" como sugiere el ejemplo[cite: 548], ignoradla para no ensuciar el repo.
+output/
+*.pdf
+
+# =========================
+# 6. IDEs y Editores de Código
+# =========================
+.vscode/
+.idea/

@@ -1,0 +1,1 @@
+﻿A la hora de contar palabras del documento el LLM lo hará fatal. Tenemos que hacer una tool que genere el jJSON y cuente las palabras con un programa de Python y luego el agnete usará esa información para dar la respuesta.  
