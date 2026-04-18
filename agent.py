@@ -4,6 +4,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Optional
 import csv
+import os 
+from dotenv import load_dotenv
+
+
 
 try:
     # Newer docs often show this path.
@@ -108,12 +112,16 @@ def estimate_cost(place_names: List[str]) -> Dict[str, Any]:
 # ---------------------------
 # Root agent
 # ---------------------------
+load_dotenv()
+api_key = os.getenv("POLI_API_KEY")
+api_base = os.getenv("POLI_API_BASE")
 
 root_agent = Agent(
     # Pick a model you have configured (Gemini via GOOGLE_API_KEY, or via Vertex).
     # You can also route via LiteLLM if your environment is set up that way.
     #model="gemini-3-flash-preview",
-    model=LiteLlm(model="openai/gpt-oss-120b", api_base="https://api.poligpt.upv.es/", api_key="sk-LFXs1kjaSxtEDgOMlPUOpA"),
+    
+    model = LiteLlm(model="openai/gpt-oss-120b", api_base=api_base, api_key=api_key),
 
     name="root_agent",
     description=(
