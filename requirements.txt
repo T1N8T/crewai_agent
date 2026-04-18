@@ -2,3 +2,4 @@ python-dotenv
 google-adk
 litellm
 google-adk[eval]
+beautifulsoup4
