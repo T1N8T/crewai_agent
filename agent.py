@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 import urllib.request as libreq
 import urllib.parse as parse
 import xml.etree.ElementTree as ET
-
+from bs4 import BeautifulSoup
 
 
 try:
@@ -61,6 +61,67 @@ def search_arxiv_abstracts(topic :str) -> Dict[str, str]:
         
     except Exception as e:
         return {"Error": f"{e}"}
+    
+def read_section(paperID: str, sectionKW: str) -> str:
+    # Fetches the HTML version of an ArXiv paper and extracts the text of a specific section 
+    url = f"https://ar5iv.labs.arxiv.org/html/{paperID}"
+
+    try:
+        req = libreq.Request(url, headers={'User-Agent': 'Mozilla/5.0'}) # We use headers to avoid bans
+        with libreq.urlopen(req) as response:
+            html = response.read()
+        
+        soup = BeautifulSoup(html, 'html.parser')
+
+        headers = soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
+
+        targetHeader = None
+        for header in headers: 
+            if sectionKW.lower() in header.get_text().lower():
+                targetHeader = header
+                break
+
+        if not targetHeader:
+            #In order to reduce token usage we are just taking the first words of the section
+            sections = [" ".join(h.get_text().strip().split()[:4]) for h in headers if h.get_text().strip()]
+            
+            #To check there are not two equal named sections
+            sections_unicas = list(dict.fromkeys(sections)) 
+            sections_txt = ", ".join(sections_unicas)
+            
+
+            return f"Error: Section '{sectionKW}' not found in this paper. Available sections are: {sections_txt}. Please call this tool again using one of these exact section names."    
+
+        content = []
+        targetLevel = int(targetHeader.name[1])
+
+        for sibling in targetHeader.find_next_siblings():
+            if sibling.name in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+                siblingLevel = int(sibling.name[1])
+
+                if siblingLevel <= targetLevel:
+                    break
+                else:
+                    content.append(f"\n--- {sibling.get_text().strip()} ---")
+
+            else:
+                text = sibling.get_text().strip()
+                if text:  
+                    content.append(text)
+                
+        res = " ".join(content)
+
+        if not res:
+            return f"Error: The section '{sectionKW}' does not have text."
+
+        words = res.split()
+        if len(words) > 800:
+            res = " ".join(words[:800]) + "... [Text truncated to save context memory, try again with a more specific section?]"
+
+        return f"SECTION '{sectionKW.upper()}' CONTENT:\n{res}"
+    
+    except Exception as e:
+        return f"Error: {e}"
 
 
 def generate_json():

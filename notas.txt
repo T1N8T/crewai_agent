@@ -1,1 +1,2 @@
-﻿A la hora de contar palabras del documento el LLM lo hará fatal. Tenemos que hacer una tool que genere el JSON y cuente las palabras con un programa de Python y luego el agnete usará esa información para dar la respuesta.  
+﻿A la hora de contar palabras del documento el LLM lo hará fatal. Tenemos que hacer una tool que genere el JSON y cuente las palabras con un programa de Python y luego el agnete usará esa información para dar la respuesta.  -PT
+He escrito los comentarios en inglés por ser más profesional, pero las isntrucciones yo las metería en español. -PT
