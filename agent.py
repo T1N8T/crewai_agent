@@ -6,6 +6,9 @@ from typing import Any, Dict, List, Tuple, Optional
 import csv
 import os 
 from dotenv import load_dotenv
+import urllib.request as libreq
+import urllib.parse as parse
+import xml.etree.ElementTree as ET
 
 
 
@@ -18,95 +21,53 @@ except Exception:  # pragma: no cover
 
 from google.adk.models.lite_llm import LiteLlm 
 
+# ==========================================
+# DEFINICIÓN DE TOOLS 
+# ==========================================
 
-@dataclass(frozen=True)
-class WeatherRow:
-    temp_c: int
-    rain_prob: int
-    summary: str
+def search_arxiv_abstracts(topic :str) -> Dict[str, str]:
+    #Search in ArXiv's API top relevant papers about CrewAI
+    #and return a dictionary with
+    #key: ArXiv ID
+    #value: Abstract
 
-class CsvDataStore:
-    """
-    Carga y cachea weather.csv y places.csv.
-    Weather ahora se indexa SOLO por ciudad (sin fecha).
-    """
-    def __init__(self, base_dir: Path):
-        self.base_dir = base_dir
-        self._weather: Optional[Dict[str, WeatherRow]] = None
-        self._places: Optional[Dict[Tuple[str, str], List[Dict[str, Any]]]] = None
+    maxResults = 3
+    res = {}
 
-    def _load_weather(self) -> Dict[str, WeatherRow]:
-        path = self.base_dir / "weather.csv"
-        db: Dict[str, WeatherRow] = {}
-        with path.open(newline="", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for r in reader:
-                city = (r["city"] or "").strip()
-                db[city] = WeatherRow(
-                    temp_c=int(r["temp_c"]),
-                    rain_prob=int(r["rain_prob"]),
-                    summary=(r["summary"] or "").strip(),
-                )
-        return db
+    sortBy = "relevance" #other options are "lastUpdatedDate","submittedDate"
+    searchQuery = "all:CrewAI+AND+all:" + parse.quote(topic)
+    link = f"http://export.arxiv.org/api/query?search_query={searchQuery}&sortBy={sortBy}&start=0&max_results={maxResults}" 
 
-    def _load_places(self) -> Dict[Tuple[str, str], List[Dict[str, Any]]]:
-        path = self.base_dir / "places.csv"
-        db: Dict[Tuple[str, str], List[Dict[str, Any]]] = {}
-        with path.open(newline="", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for r in reader:
-                city = (r["city"] or "").strip()
-                category = (r["category"] or "").strip()
-                item = {
-                    "name": (r["name"] or "").strip(),
-                    "type": category,
-                    "price_eur": int(r["price_eur"]),
-                }
-                db.setdefault((city, category), []).append(item)
-        return db
+    try:
+        with libreq.urlopen(link) as url:
+            r = url.read()
+        
+        response = ET.fromstring(r)
+        ns = {'atom': 'http://www.w3.org/2005/Atom'} #API's namespace
 
-    def get_weather(self, city: str) -> WeatherRow:
-        if self._weather is None:
-            self._weather = self._load_weather()
-        return self._weather.get(
-            city,
-            WeatherRow(temp_c=15, rain_prob=30, summary="Variable"),  # default
-        )
+        
+        for entry in response.findall('atom:entry',ns):
+                
+                abstract = entry.find("atom:summary",ns).text.replace('\n', ' ')
+                id_url = entry.find("atom:id",ns).text
+                paper_id = id_url.split("/")[-1] 
 
-    def search_places(self, city: str, category: str) -> List[Dict[str, Any]]:
-        if self._places is None:
-            self._places = self._load_places()
-        return self._places.get((city, category), [])
-
-# --- instancia global (base_dir = carpeta del paquete del agente) ---
-DATA = CsvDataStore(base_dir=Path(__file__).resolve().parent)
-
-# --- Tools ---
-def get_weather(city: str) -> Dict[str, Any]:
-    w = DATA.get_weather(city)
-    return {"temp_c": w.temp_c, "rain_prob": w.rain_prob, "summary": w.summary}
-
-def search_places(city: str, category: str) -> Dict[str, Any]:
-    return {"result": DATA.search_places(city, category)}
-
-def estimate_cost(place_names: List[str]) -> Dict[str, Any]:
-    total = 0
-    # buscamos precios en cache de places
-    if DATA._places is None:
-        DATA._places = DATA._load_places()
-
-    price_index: Dict[str, int] = {}
-    for (_city, _cat), items in DATA._places.items():
-        for it in items:
-            price_index[it["name"]] = int(it["price_eur"])
-
-    for name in place_names:
-        total += int(price_index.get(name, 0))
-
-    return {"total_eur": total}
+                res[paper_id] = f"ABSTRACT: {abstract}"
+        
+        if not res:
+             return {"error": "No papers found for this topic"}
+        else:
+             return res
+        
+    except Exception as e:
+        return {"Error": f"{e}"}
 
 
+def generate_json():
+    return 0
 
+def generate_pdf():
+    return 0
 
 
 # ---------------------------
@@ -137,5 +98,5 @@ root_agent = Agent(
         "(5) responde en español con: categoría elegida, tiempo (resumen), 2 planes y coste total, "
         "sin inventar lugares fuera de la tool."
     ),
-    tools=[get_weather, search_places, estimate_cost],
+    tools=[],
 )

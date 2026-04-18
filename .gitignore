@@ -40,3 +40,7 @@ output/
 # =========================
 .vscode/
 .idea/
+
+##programas Pablo
+ejemplo.py
+pruebaAPI.py
