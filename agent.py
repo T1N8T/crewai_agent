@@ -52,7 +52,12 @@ def search_arxiv_abstracts(topic :str) -> Dict[str, str]:
                 id_url = entry.find("atom:id",ns).text
                 paper_id = id_url.split("/")[-1] 
 
-                res[paper_id] = f"ABSTRACT: {abstract}"
+                title = entry.find("atom:title",ns).text.replace('\n', ' ').strip()
+                year = entry.find("atom:published", ns).text[:4]
+                authors_list = [author.find('atom:name', ns).text for author in entry.findall('atom:author', ns)]
+                authors = ", ".join(authors_list)
+
+                res[paper_id] = f"TITLE: {title} | AUTHORS: {authors} | YEAR: {year} | ABSTRACT: {abstract}" #We are also taking, title, authors and year now to build bibliography later
         
         if not res:
              return {"error": "No papers found for this topic"}
