@@ -10,6 +10,7 @@ import urllib.request as libreq
 import urllib.parse as parse
 import xml.etree.ElementTree as ET
 from bs4 import BeautifulSoup
+from fpdf import FPDF
 
 
 try:
@@ -129,11 +130,51 @@ def read_section(paperID: str, sectionKW: str) -> str:
         return f"Error: {e}"
 
 
+def generate_pdf(title:str, sections: dict, bibliography:str) -> str:
+
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+
+    #TITLE
+    pdf.set_font("Arial", 'B', 24) #title font, bold, size
+    pdf.cell(0, 20, title, ln=True, align='C')
+    pdf.ln(10)
+
+    #BODY
+    for name, text in sections.items():
+        # Section's title
+        pdf.set_font("Arial", 'B', 16)
+        pdf.cell(0, 10, name, ln=True)
+        pdf.ln(2)
+        
+        # Text
+        pdf.set_font("Times", size=12)
+        pdf.multi_cell(0, 8, text)
+        pdf.ln(5) # Espacio antes de la siguiente sección
+
+        #Bibliography
+        pdf.add_page()
+        pdf.set_font("Arial", 'B', 16)
+        pdf.cell(0, 10, "Bibliografía", ln=True)
+        pdf.ln(5)
+        
+        pdf.set_font("Times", size=10) 
+        pdf.multi_cell(0, 6, bibliography)
+
+        #Export
+        try:
+            os.makedirs("output", exist_ok=True)
+            path = "output/informe.pdf"
+            pdf.output(path)
+            return f"SUCCESS: PDF generated successfully at {path}"
+        except Exception as e:
+            return f"ERROR: Failed to generate PDF: {e}"
+
 def generate_json():
     return 0
 
-def generate_pdf():
-    return 0
+
 
 
 # ---------------------------

@@ -3,3 +3,4 @@ google-adk
 litellm
 google-adk[eval]
 beautifulsoup4
+fpdf
