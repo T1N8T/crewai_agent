@@ -153,24 +153,24 @@ def generate_pdf(title:str, sections: dict, bibliography:str) -> str:
         pdf.multi_cell(0, 8, text)
         pdf.ln(5) 
 
-        #Bibliography
-        pdf.add_page()
-        pdf.set_font("Arial", 'B', 16)
-        pdf.cell(0, 10, "Bibliografía", ln=True)
-        pdf.ln(5)
-        
-        pdf.set_font("Times", size=10) 
-        pdf.multi_cell(0, 6, bibliography)
+    #Bibliography
+    pdf.add_page()
+    pdf.set_font("Arial", 'B', 16)
+    pdf.cell(0, 10, "Bibliografía", ln=True)
+    pdf.ln(5)
+    
+    pdf.set_font("Times", size=10) 
+    pdf.multi_cell(0, 6, bibliography)
 
-        #Export
-        try:
-            os.makedirs("output", exist_ok=True)
-            name =  "".join([c if c.isalnum() else "_" for c in title])
-            path = f"output/informe_{name}.pdf"
-            pdf.output(path)
-            return f"SUCCESS: PDF generated successfully at {path}"
-        except Exception as e:
-            return f"ERROR: Failed to generate PDF: {e}"
+    #Export
+    try:
+        os.makedirs("output", exist_ok=True)
+        name =  "".join([c if c.isalnum() else "_" for c in title])
+        path = f"output/informe_{name}.pdf"
+        pdf.output(path)
+        return f"SUCCESS: PDF generated successfully at {path}"
+    except Exception as e:
+        return f"ERROR: Failed to generate PDF: {e}"
 
 def generate_json():
     return 0
