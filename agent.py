@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple, Optional
 import csv
 import os 
+import json
 from dotenv import load_dotenv
 import urllib.request as libreq
 import urllib.parse as parse
@@ -172,8 +173,32 @@ def generate_pdf(title:str, sections: dict, bibliography:str) -> str:
         except Exception as e:
             return f"ERROR: Failed to generate PDF: {e}"
 
-def generate_json():
-    return 0
+def generate_json(title: str, sections_list: List[Dict[str, Any]], total_words: int, num_references: int, pdf_path: str) -> str:
+    # Generates a JSON file with metadata about the report, including title, sections, word counts, references, and PDF path.
+    # Create the dictionary structure for the report metadata from input parameters
+    report_data = {
+        "title": title,                               # string: The report title
+        "sections": sections_list,                    # array<object>: [{name, word_count}, ...]
+        "total_words": total_words,                   # integer: Sum of all section words
+        "num_sections": len(sections_list),           # integer: Total section count
+        "num_references": num_references,             # integer: Bibliography count
+        "pdf_path": pdf_path                          # string: Path to the generated PDF file
+    }
+    
+    try:
+        os.makedirs("output", exist_ok=True)
+        # Create a unique filename for the JSON metadata
+        safe_title = "".join([c if c.isalnum() else "_" for c in title])
+        # Make sure no spaces or special characters are in the filename
+        json_path = f"output/informe_{safe_title}.json"
+        
+        # Write the data to a file using UTF-8 encoding and 4-space indentation
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(report_data, f, ensure_ascii=False, indent=4)
+        # Exception handling to catch and report any errors during file writing   
+        return f"SUCCESS: JSON metadata created at {json_path}"
+    except Exception as e:
+        return f"ERROR: JSON generation failed: {e}"
 
 
 
