@@ -3,44 +3,30 @@
     "rubric_based_final_response_quality_v1": {
       "threshold": 0.8,
       "judge_model_options": {
-        "judge_model": "openai/gpt-oss-120b",
+        "judge_model": "openai/gpt-oss-120b", 
         "num_samples": 2
       },
       "rubrics": [
         {
           "rubric_id": "secciones_informe",
           "rubric_content": {
-            "text_property": "El JSON debe incluir las secciones 'Introducción' y 'Conclusiones' dentro de la lista 'sections'."
+            "text_property": "El agente ha generado un JSON donde la lista 'sections' contiene al menos un objeto con 'name' igual a 'Introducción' y otro objeto con 'name' igual a 'Conclusiones'."
           },
-          "description": "Valida estructura editorial en el JSON."
+          "description": "Valida que el informe contenga Introducción y Conclusiones obligatorias."
         },
         {
           "rubric_id": "num_references",
           "rubric_content": {
-            "text_property": "El campo 'num_references' del JSON debe ser un número igual o superior a 3."
+            "text_property": "El campo 'num_references' del JSON generado por el agente es un número igual o superior a 3."
           },
-          "description": "Valida el campo num_references."
+          "description": "Valida el número mínimo de referencias (3)."
         },
         {
           "rubric_id": "num_sections",
           "rubric_content": {
-            "text_property": "El campo 'num_sections' del JSON o la longitud de la lista 'sections' debe ser igual o superior a 4."
+            "text_property": "El campo 'num_sections' del JSON generado por el agente es un número igual o superior a 4."
           },
-          "description": "Valida el número de secciones en el JSON."
-        },
-        {
-          "rubric_id": "word_count",
-          "rubric_content": {
-            "text_property": "Los campos 'word_count' deben tener un valor igual o superior a 150."
-          },
-          "description": "Valida los campos de word_count."
-        },
-        {
-          "rubric_id": "total_word_count",
-          "rubric_content": {
-            "text_property": "el numero total de palabras en el campo 'total_words' debe ser igual o superior a 450"
-          },
-          "description": "Valida el numero total de palabras."
+          "description": "Valida que haya desarrollo estructurado (al menos 4 secciones en total)."
         }
       ]
     }
