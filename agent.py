@@ -151,7 +151,7 @@ def generate_pdf(title:str, sections: dict, bibliography:str) -> str:
         # Text
         pdf.set_font("Times", size=12)
         pdf.multi_cell(0, 8, text)
-        pdf.ln(5) # Espacio antes de la siguiente sección
+        pdf.ln(5) 
 
         #Bibliography
         pdf.add_page()
@@ -165,7 +165,8 @@ def generate_pdf(title:str, sections: dict, bibliography:str) -> str:
         #Export
         try:
             os.makedirs("output", exist_ok=True)
-            path = "output/informe.pdf"
+            name =  "".join([c if c.isalnum() else "_" for c in title])
+            path = f"output/informe_{name}.pdf"
             pdf.output(path)
             return f"SUCCESS: PDF generated successfully at {path}"
         except Exception as e:
