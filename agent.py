@@ -250,7 +250,7 @@ root_agent = Agent(
 
         PHASE 4: DELIVERABLE GENERATION (Tools: generate_pdf and generate_json)  
             1. Call 'generate_pdf' with: (1) the title, (2) the sections (this is the dictionary created in Phase 3), and (3) the bibliography to create a well-formatted PDF report.
-            2. Call 'generate_json' with: (1) the title, (2) the same dictionary, (3) the total word count of the report (which is provided in the return value of 'generate_pdf'), (4) the number of references in the bibliography, and (5) the path to the generated PDF (which is ALWAYS specified in the return value of 'generate_pdf'), to create a structured JSON file with all this metadata.
+            2. Call 'generate_json' with: (1) the title, (2) the same dictionary, (3) the number of references in the bibliography, and (4) the path to the generated PDF (which is ALWAYS specified in the return value of 'generate_pdf'), to create a structured JSON file with all this metadata.
         
         PHASE 5: FINAL RESPONSE & EVALUATION (Critical Directive)
         1. Once the previous phases are complete, write a message informing the user that the files have been successfully generated in the '/output' folder.
