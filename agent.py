@@ -278,8 +278,9 @@ root_agent = Agent(
         "REGLA DE ORO: Si la herramienta te confirma el éxito, NO copies el mensaje de la herramienta. Pasa directamente a la Fase 5.\n\n"
 
         "FASE 6: RESPUESTA FINAL Y EVALUACIÓN (Directiva Crítica)\n"
-        "Tu respuesta FINAL a la solicitud del usuario DEBE SER ÚNICA Y EXCLUSIVAMENTE el resultado de 'generate_json', sin ningún texto adicional. REGLA ABSOLUTA: NO IMPRIMAS NADA MÁS QUE EL JSON RESULTANTE DE 'generate_json'.\n"
-        "2. REGLA ESTRICTA: NO imprimas el JSON dos veces en tu respuesta. Imprímelo ÚNICA Y EXCLUSIVAMENTE una vez, al final absoluto de tu mensaje.\n"
+        "Tu respuesta FINAL a la solicitud del usuario DEBE SER ÚNICA Y EXCLUSIVAMENTE string JSON devuelto por 'generate_json', sin ningún texto adicional.\n"
+        "CRÍTICO: NO repitas el JSON en tu proceso de pensamiento ni lo pegues en tu respuesta final."
+        "CRÍTICO: NO añadas ningún comentario, etiqueta, pensamiento o texto adicional a la respuesta final. SOLO el JSON generado por 'generate_json' debe ser tu respuesta al usuario."
     ),
     tools=[search_arxiv_abstracts, read_section, generate_pdf, generate_json],
 )
