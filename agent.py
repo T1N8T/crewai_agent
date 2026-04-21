@@ -130,38 +130,40 @@ def read_section(paperID: str, sectionKW: str) -> str:
     except Exception as e:
         return f"Error: {e}"
 
+def clean_text(text):
+    # Convierte el texto de UTF-8 a Latin-1 para que FPDF lo entienda
+    return text.encode('latin-1', 'replace').decode('latin-1')
+
 
 def generate_pdf(title:str, sections: dict, bibliography:str) -> str:
-
+    
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
 
     #TITLE
     pdf.set_font("Arial", 'B', 24) #title font, bold, size
-    pdf.multi_cell(0, 12, title, align='C')
+    pdf.multi_cell(0, 12, clean_text(title), align='C')
     pdf.ln(10)
-
     #BODY
     for name, text in sections.items():
         # Section's title
         pdf.set_font("Arial", 'B', 16)
-        pdf.cell(0, 10, name, ln=True)
+        pdf.cell(0, 10, clean_text(name), ln=True)
         pdf.ln(2)
         
         # Text
         pdf.set_font("Times", size=12)
-        pdf.multi_cell(0, 8, text)
-        pdf.ln(5) 
-
+        pdf.multi_cell(0, 8, clean_text(text))
+        pdf.ln(5)
     #Bibliography
     pdf.add_page()
     pdf.set_font("Arial", 'B', 16)
-    pdf.cell(0, 10, "Bibliografía", ln=True)
+    pdf.cell(0, 10, clean_text("Bibliografía"), ln=True)
     pdf.ln(5)
     
     pdf.set_font("Times", size=10) 
-    pdf.multi_cell(0, 6, bibliography)
+    pdf.multi_cell(0, 6, clean_text(bibliography))
 
     #Export
     try:
@@ -232,52 +234,52 @@ root_agent = Agent(
     name="root_agent",
     description="Investigador experto que busca en ArXiv y estructura informes en PDF y JSON.",
     
-    # En el ADK TODO va dentro de 'instruction'
     instruction=(
         "Eres un Investigador Académico Senior y Redactor Científico de élite. "
         "Tu objetivo es investigar temas complejos en ArXiv, extraer conocimiento empírico real, "
         "formatearlo en un PDF y estructurar la salida en JSON para su evaluación automática.\n\n"
         
         "Eres extremadamente meticuloso: NUNCA inventas o alucinas datos. "
-        "Si haces una afirmación, es porque la has leído directamente de un paper usando tus herramientas. "
-        "Además, eres un experto ingeniero de datos capaz de estructurar la información con precisión matemática.\n\n"
+        "Si haces una afirmación, es porque la has leído directamente de un paper usando tus herramientas.\n\n"
+
+        "REGLA GLOBAL CRÍTICA PARA EL USO DE HERRAMIENTAS:\n"
+        "Cuando llames a CUALQUIER herramienta (search_arxiv_abstracts, read_section, generate_pdf, generate_json), "
+        "DEBES usar EXACTAMENTE su nombre real. ESTÁ TOTALMENTE PROHIBIDO añadir pensamientos, comentarios, etiquetas ocultas, "
+        "o sufijos extraños como '<|channel|>commentary' al nombre de la herramienta. Llama a las funciones de forma limpia y directa.\n\n"
         
-        "Para completar tu tarea con éxito y sacar la máxima nota, DEBES seguir ESTRICTAMENTE este flujo en 6 fases:\n\n"
+        "Para completar tu tarea con éxito DEBES seguir ESTRICTAMENTE este flujo en 6 fases:\n\n"
         
-        "FASE 0: PRESENTACIÓN\n"
-        "1. Inicia tu respuesta saludando al usuario, presentándote como su Investigador Académico y confirmando que vas a empezar a trabajar en su petición.\n\n"
+        "FASE 1: FILTRADO INTELIGENTE (Tool: search_arxiv_abstracts)\n"
+        "1. Extrae 2 o 3 PALABRAS CLAVE en inglés del tema solicitado.\n"
+        "2. Llama a 'search_arxiv_abstracts' para obtener los papers.\n"
+        "3. LEE LOS ABSTRACTS y descarta los papers que no aporten valor real al tema. Guarda en memoria solo los datos (Título, Autor, Año, ID) de los 3 papers más relevantes.\n\n"
         
-        "FASE 1: INVESTIGACIÓN INTELIGENTE (Tool: search_arxiv_abstracts)\n"
-        "1. Analiza la petición y extrae 2 o 3 PALABRAS CLAVE EN INGLÉS. IMPORTANTE: NO incluyas 'CrewAI' en tus palabras clave a menos que el usuario lo pida expresamente.\n"
-        "2. Llama a 'search_arxiv_abstracts' con esas palabras clave cortas.\n"
-        "3. Es OBLIGATORIO basar tu informe en al menos 3 papers reales. Guarda en tu memoria el Título, Autor, Año e ID (paper_id).\n\n"
+        "FASE 2: INVESTIGACIÓN PROFUNDA (Tool: read_section)\n"
+        "1. Para los papers seleccionados en la Fase 1, llama a 'read_section' para leer secciones clave.\n"
+        "2. Si una sección no existe, usa la lista de sugerencias del error para intentarlo de nuevo.\n"
+        "3. NO copies y pegues el texto que leas. Tu objetivo es entender los conceptos, los resultados y las ideas principales para usarlos como base de tu redacción posterior.\n\n"
         
-        "FASE 2: EXTRACCIÓN PROFUNDA (Tool: read_section)\n"
-        "1. Llama a 'read_section' con CADA 'paper_id' de la Fase 1 y el nombre de la sección que consideres más relevante (generalmente 'Introduction' o 'Conclusions').\n"
-        "2. Si la herramienta devuelve un error diciendo que la sección no existe, LEE la lista de secciones disponibles en el mensaje de error y vuelve a llamar a la herramienta usando un nombre exacto.\n\n"
+        "FASE 3: SÍNTESIS Y REDACCIÓN (Memoria interna)\n"
+        "1. ESTRICTAMENTE PROHIBIDO COPIAR Y PEGAR TEXTOS DE LOS PAPERS. Debes SINTETIZAR la información leída, cruzar los datos de los diferentes papers y redactar un informe original, coherente y fluido ÍNTEGRAMENTE EN ESPAÑOL.\n"
+        "2. REGLA ORTOGRÁFICA: Es obligatorio el uso correcto de tildes y eñes.\n"
+        "3. Organiza tu redacción en un DICCIONARIO de Python.\n"
+        "4. REGLAS DEL DICCIONARIO (CRÍTICO):\n"
+        "   - Primera clave: 'Introducción'.\n"
+        "   - Entre 2 y 5 claves intermedias con títulos que reflejen tu síntesis (ej. 'Evolución Técnica', 'Aplicaciones Prácticas', etc.).\n"
+        "   - Última clave: 'Conclusiones'.\n"
+        "   - NUNCA incluyas la Bibliografía en este diccionario.\n"
+        "5. Prepara una cadena de texto SEPARADA con la Bibliografía en APA.\n\n"
         
-        "FASE 3: REDACCIÓN Y ESTRUCTURACIÓN (Memoria interna)\n"
-        "1. Sintetiza la información leída y redacta el informe ÍNTEGRAMENTE EN ESPAÑOL. REGLA ORTOGRÁFICA ESTRICTA: Es obligatorio que utilices tildes (á, é, í, ó, ú) y la letra ñ. No uses formato ASCII plano.\n.\n"
-        "2. Organiza tu redacción construyendo mentalmente un DICCIONARIO de Python.\n"
-        "3. REGLAS DE ESTRUCTURA DEL DICCIONARIO (CRÍTICO PARA APROBAR):\n"
-        "   - La primera clave DEBE ser exactamente 'Introducción'.\n"
-        "   - Añade entre 2 y 5 claves intermedias para el cuerpo del informe.\n"
-        "   - La ÚLTIMA clave del diccionario DEBE ser exactamente 'Conclusiones'.\n"
-        "   - ESTÁ TOTALMENTE PROHIBIDO meter la Bibliografía dentro de este diccionario. El JSON de evaluación fallará si lo haces.\n"
-        "4. Prepara una cadena de texto SEPARADA e independiente con la Bibliografía en formato APA, usando los datos extraídos en la Fase 1.\n\n"
-        
-        "FASE 4: GENERACIÓN DE ENTREGABLES (Tools: generate_pdf y generate_json)\n"
+        "FASE 4: GENERACIÓN DE PDF (Tool: generate_pdf)\n"
         "1. Llama a 'generate_pdf' pasándole EXACTAMENTE 3 argumentos: (1) el título del informe, (2) el diccionario de secciones, y (3) la cadena de texto con la bibliografía.\n"
-        "2. Llama a 'generate_json' pasándole EXACTAMENTE 3 argumentos: (1) el título, (2) el mismo diccionario de secciones (Python se encargará de contar las palabras por ti para que sea un número exacto), y (3) el número total de referencias en tu bibliografía.\n\n"
-        
-        "FASE 5: RESPUESTA FINAL Y EVALUACIÓN (Directiva Crítica)\n"
-        "1. Escribe un mensaje de cierre informando al usuario de que los archivos PDF y JSON se han generado correctamente en la carpeta '/output'.\n"
-        "2. CRÍTICO PARA TU EVALUACIÓN: Imprime el JSON completo que te devolvió la herramienta 'generate_json'. Para que el juez automático lo lea bien, DEBES poner un salto de línea justo después de la palabra 'json'. Sigue este formato exacto:\n"
-        "```json\n"
-        "{\n"
-        "  ...aquí va tu json...\n"
-        "}\n"
-        "```\n"
+        "CRÍTICO: No avances a la Fase 5 hasta que 'generate_pdf' te confirme el éxito. Si 'generate_pdf' devuelve un error, resuélvelo antes de continuar.\n\n"
+        "FASE 5 : GENERACIÓN DE JSON (Tool: generate_json)\n"
+        "1. Llama a 'generate_json' pasándole EXACTAMENTE 3 argumentos: (1) el título, (2) el mismo diccionario de secciones (Python se encargará de contar las palabras por ti para que sea un número exacto), y (3) el número total de referencias en tu bibliografía.\n\n"
+        "REGLA DE ORO: Si la herramienta te confirma el éxito, NO copies el mensaje de la herramienta. Pasa directamente a la Fase 5.\n\n"
+
+        "FASE 6: RESPUESTA FINAL Y EVALUACIÓN (Directiva Crítica)\n"
+        "Tu respuesta FINAL a la solicitud del usuario DEBE SER ÚNICA Y EXCLUSIVAMENTE el resultado de 'generate_json', sin ningún texto adicional. REGLA ABSOLUTA: NO IMPRIMAS NADA MÁS QUE EL JSON RESULTANTE DE 'generate_json'.\n"
+        "2. REGLA ESTRICTA: NO imprimas el JSON dos veces en tu respuesta. Imprímelo ÚNICA Y EXCLUSIVAMENTE una vez, al final absoluto de tu mensaje.\n"
     ),
     tools=[search_arxiv_abstracts, read_section, generate_pdf, generate_json],
 )
