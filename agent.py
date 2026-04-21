@@ -173,30 +173,47 @@ def generate_pdf(title:str, sections: dict, bibliography:str) -> str:
     except Exception as e:
         return f"ERROR: Failed to generate PDF: {e}"
 
-def generate_json(title: str, sections_list: List[Dict[str, Any]], total_words: int, num_references: int, pdf_path: str) -> str:
-    # Generates a JSON file with metadata about the report, including title, sections, word counts, references, and PDF path.
-    # Create the dictionary structure for the report metadata from input parameters
+def generate_json(title: str, sections: dict, num_references: int) -> str:
+    
+    sections_list = []
+    total_words = 0
+    
+    
+    for name, text in sections.items():
+        
+        word_count = len(text.split()) + len(name.split())
+        total_words += word_count
+        
+       
+        sections_list.append({
+            "name": name,
+            "word_count": word_count
+        })
+
+    
+    safe_title = "".join([c if c.isalnum() else "_" for c in title])
+    pdf_path = f"output/informe_{safe_title}.pdf"
+    json_path = f"output/informe_{safe_title}.json"
+
+    
     report_data = {
-        "title": title,                               # string: The report title
-        "sections": sections_list,                    # array<object>: [{name, word_count}, ...]
-        "total_words": total_words,                   # integer: Sum of all section words
-        "num_sections": len(sections_list),           # integer: Total section count
-        "num_references": num_references,             # integer: Bibliography count
-        "pdf_path": pdf_path                          # string: Path to the generated PDF file
+        "title": title,
+        "sections": sections_list,
+        "total_words": total_words,
+        "num_sections": len(sections_list),
+        "num_references": num_references,
+        "pdf_path": pdf_path
     }
+    
     
     try:
         os.makedirs("output", exist_ok=True)
-        # Create a unique filename for the JSON metadata
-        safe_title = "".join([c if c.isalnum() else "_" for c in title])
-        # Make sure no spaces or special characters are in the filename
-        json_path = f"output/informe_{safe_title}.json"
-        
-        # Write the data to a file using UTF-8 encoding and 4-space indentation
         with open(json_path, "w", encoding="utf-8") as f:
             json.dump(report_data, f, ensure_ascii=False, indent=4)
-        # Exception handling to catch and report any errors during file writing   
-        return f"SUCCESS: JSON metadata created at {json_path}"
+        
+        
+        return f"SUCCESS: JSON generado en {json_path}\n\nJSON RESULTANTE:\n{json.dumps(report_data, ensure_ascii=False, indent=2)}"
+    
     except Exception as e:
         return f"ERROR: JSON generation failed: {e}"
 
@@ -245,8 +262,7 @@ root_agent = Agent(
                 - The first key must be exactly "Introduction".
                 - Add between 2 and 5 intermediate keys for the body of the report.
                 - The last key must be exactly "Conclusions".
-            4. Calculate the total word count of the report, and keep this information in your working memory to be included in the JSON metadata later.
-            5. Prepare a separate text string containing the Bibliography in APA format, using the metadata from Phase 1.
+            4. Prepare a separate text string containing the Bibliography in APA format, using the metadata from Phase 1.
 
         PHASE 4: DELIVERABLE GENERATION (Tools: generate_pdf and generate_json)  
             1. Call 'generate_pdf' with: (1) the title, (2) the sections (this is the dictionary created in Phase 3), and (3) the bibliography to create a well-formatted PDF report.
@@ -259,7 +275,4 @@ root_agent = Agent(
         """
     ),
     tools=[search_arxiv_abstracts, read_section, generate_pdf, generate_json],
-    allow_delegation=False,
-    verbose=True, # This helps to see what the agent thinks step by step
-    system_template=instruction
 )
